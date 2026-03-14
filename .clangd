@@ -1,0 +1,14 @@
+If:
+  PathMatch: .*\.cpp
+
+CompileFlags:
+  CompilationDatabase: build/Debug
+
+---
+
+If:
+  PathMatch: .*\.h
+
+CompileFlags:
+  CompilationDatabase: build/Debug
+  Add: [-xc++, -std=c++20]
