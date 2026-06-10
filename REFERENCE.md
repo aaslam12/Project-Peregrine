@@ -243,6 +243,8 @@ Prices are stored globally as `int64_t`. They are cast to `size_t` exclusively a
 
 All `order` objects are allocated from Palloc Pool. The Pool size class is tuned to `sizeof(order)` at startup. A pre-warmed pool for the maximum expected simultaneous resting orders is allocated at startup — zero `malloc` calls on the hot path during operation.
 
+Each `price_level` holds a head and tail pointer to an **intrusive doubly-linked list** of resting `order` nodes. The `order` struct embeds `prev` and `next` pointers directly — no separate list container. Cancellation is O(1): splice the node out by relinking its neighbors, then return it to the Palloc Pool. This preserves strict FIFO time priority for all remaining orders at the level.
+
 ---
 
 ## 6. Network Layer
