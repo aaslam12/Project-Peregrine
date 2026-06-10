@@ -524,6 +524,7 @@ Coverage implies a dedicated `build/dev-debug-coverage` build directory, forces 
 - **CPU scaling governor:** `performance` — locks CPU frequency to maximum, preventing frequency scaling from changing the TSC tick rate or introducing execution latency variance.
 - **Turbo Boost:** Disabled. Turbo causes per-burst frequency spikes that make TSC calibration imprecise and introduce tail latency variance.
 - **NIC interrupt coalescing:** Disabled — allows individual packet interrupts rather than coalesced batches, reducing inbound latency at the cost of higher interrupt rate (which is irrelevant since IRQs are confined to core 5).
+- **Intel Cache Allocation Technology (CAT):** Configured via the `resctrl` filesystem to partition L3 cache ways between Core 5 and Cores 0–4. Core 5 is assigned a single L3 way (bitmask `0x1`); Cores 0–4 are assigned all remaining ways (e.g. `0xffe` on a 12-way cache). This prevents Core 5's OS allocations from evicting order book data from L3. Requires `cat_l3` in `/proc/cpuinfo`. Configured at startup via `/sys/fs/resctrl`.
 
 ### Why All of These Together
 
@@ -535,6 +536,7 @@ Each of these settings addresses a specific source of latency jitter:
 - `performance` governor eliminates frequency-scaling-induced timing variance.
 - Turbo off makes the TSC calibration constant valid for the entire run.
 - NIC coalescing off eliminates the hardware-imposed batching delay at the ingest boundary.
+- Intel CAT eliminates L3 eviction pressure from Core 5's OS activity on the pipeline cores' working set.
 
 ### Dev Environment
 
