@@ -1,3 +1,4 @@
+#include "palloc.h"
 #include <iostream>
 #include <peregrine_core.h>
 

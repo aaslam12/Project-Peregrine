@@ -1,17 +1,13 @@
 #pragma once
 
 #include "palloc_atomic.h"
+#include "utility.h"
 #include <atomic>
 #include <cstddef>
 #include <type_traits>
 
 namespace AL
 {
-
-constexpr bool is_power_of_two(std::size_t n)
-{
-    return n >= 2 && (n & (n - 1)) == 0;
-}
 
 template<typename T, std::size_t capacity>
 concept is_valid_spsc_config = std::is_move_assignable_v<T> && is_power_of_two(capacity);
@@ -30,8 +26,7 @@ class spsc_ring
 public:
     spsc_ring() = delete;
 
-    spsc_ring(T* storage) : data{storage}
-    {}
+    spsc_ring(T* storage) : data{storage} {}
 
     // returns false if the ring is full
     bool push(T&& val)
