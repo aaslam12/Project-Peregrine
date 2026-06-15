@@ -480,7 +480,6 @@ def main():
             os.makedirs(benchmark_dir, exist_ok=True)
 
             json_out = os.path.join(benchmark_dir, f"results_{timestamp}.json")
-            csv_out = os.path.join(benchmark_dir, f"results_{timestamp}.csv")
             metadata_out = os.path.join(benchmark_dir, f"results_{timestamp}.meta.json")
 
             common_args = [benchmark_exe]
@@ -494,18 +493,12 @@ def main():
                 + [f"--benchmark_out={json_out}", "--benchmark_out_format=json"],
                 env=env,
             )
-            run(
-                common_args
-                + [f"--benchmark_out={csv_out}", "--benchmark_out_format=csv"],
-                env=env,
-            )
 
             metadata = {
                 "timestamp": timestamp,
                 "profile": args.profile,
                 "config": args.config,
                 "json_output": json_out,
-                "csv_output": csv_out,
                 "build_info": load_build_info(build_dir),
             }
             write_run_metadata(metadata_out, metadata)

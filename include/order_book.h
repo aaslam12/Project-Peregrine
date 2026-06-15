@@ -39,16 +39,16 @@ struct price_level
 template<uint64_t capacity>
 concept is_valid_order_book_config = is_power_of_two(capacity);
 
-template<uint64_t capacity>
+template<uint64_t capacity, bool Tthreaded = false>
     requires is_valid_order_book_config<capacity>
 class order_book
 {
     int64_t base_price;
     std::span<price_level, capacity> levels;
-    AL::bitmap bids;
-    AL::bitmap asks;
+    AL::bitmap<Tthreaded> bids;
+    AL::bitmap<Tthreaded> asks;
 
-    AL::pool* order_pool;
+    AL::pool<Tthreaded>* order_pool;
 
     size_t get_index(int64_t price) const { return static_cast<size_t>(price - base_price) & (capacity - 1); }
 
@@ -59,7 +59,7 @@ public:
 
     // bid_mem and ask_mem must each be at least AL::bitmap::required_size(capacity) bytes,
     // pre-zeroed before being passed in.
-    order_book(std::span<price_level, capacity> levels_span, AL::pool* pool, void* bid_memory, void* ask_memory, int64_t base)
+    order_book(std::span<price_level, capacity> levels_span, AL::pool<Tthreaded>* pool, void* bid_memory, void* ask_memory, int64_t base)
         : base_price(base), levels(levels_span), order_pool(pool)
     {
         std::memset(levels_span.data(), 0, capacity * sizeof(price_level));
