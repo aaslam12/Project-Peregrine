@@ -27,7 +27,7 @@ jobs:
           sudo apt-get install -y ninja-build cmake build-essential
 
       - name: Configure and build
-        run: python3 build.py --profile ${{ matrix.profile }} --build-only
+        run: python3 build.py --profile ${{ matrix.profile }} --build-only --no-profiling
 
       - name: Run unit tests
         if: matrix.profile == 'dev'

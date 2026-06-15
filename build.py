@@ -225,6 +225,13 @@ def main():
         help="Force CMake to fetch supported third-party dependencies instead of using system packages.",
     )
     parser.add_argument(
+        "--no-profiling",
+        dest="profiling",
+        action="store_false",
+        default=True,
+        help="Disable profiling support (exists for CI builds).",
+    )
+    parser.add_argument(
         "--run-format",
         action="store_true",
         help="Run the clang-format target after configuring.",
@@ -394,7 +401,7 @@ def main():
         f"-DPEREGRINE_FORCE_FETCH_DEPS={bool_to_cmake(args.fetch_all_deps)}",
         f"-DPEREGRINE_ENABLE_NATIVE_TUNING={bool_to_cmake(native)}",
         f"-DPEREGRINE_ENABLE_LTO={bool_to_cmake(lto)}",
-        f"-DPEREGRINE_ENABLE_PROFILING=ON",
+        f"-DPEREGRINE_ENABLE_PROFILING={bool_to_cmake(args.profiling)}",
         "-DPEREGRINE_USE_CLANG_TIDY=ON",
         "-DPEREGRINE_USE_CLANG_FORMAT=ON",
         f"-DPEREGRINE_GENERATE_COVERAGE={bool_to_cmake(args.coverage)}",

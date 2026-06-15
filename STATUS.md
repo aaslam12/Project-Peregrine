@@ -195,7 +195,7 @@ graph TD
 
     D["🏗️ 3 · execution_report.h<br/>fields: order_uid, filled_qty, price, t0–t4<br/>cache-line alignment<br/><i>Match writes it · Logger reads it<br/>must be locked before either thread is written</i>"]
 
-    E["🏗️ 4 · TSC calibration + tsc.h<br/>__rdtscp, tsc_now(), tsc_to_ns()<br/>constant_tsc / nonstop_tsc assertion<br/><i>every thread stamps via this — define it once,<br/>test it before touching any thread code</i>"]
+    E["✅ 4 · TSC calibration + tsc.h<br/>__rdtscp, tsc_now(), tsc_to_ns()<br/>constant_tsc / nonstop_tsc assertion<br/>tsc_check_cpu_flags(), tsc_init(), tsc_ns_per_tick()<br/>tests guarded by PEREGRINE_PROFILING_ENABLED for CI"]
 
     F["🏗️ 5 · UDP wire format + protocol.h<br/>packet layout, parse helpers,<br/>seq# extraction, msg_type enum<br/><i>Decode depends entirely on this being correct<br/>test with malformed + valid packets before Decode</i>"]
 
@@ -251,7 +251,7 @@ graph TD
     style C fill:#166534,stroke:#16a34a,color:#f0fdf4
 
     style D fill:#78350f,stroke:#d97706,color:#fef3c7
-    style E fill:#78350f,stroke:#d97706,color:#fef3c7
+    style E fill:#166534,stroke:#16a34a,color:#f0fdf4
     style F fill:#78350f,stroke:#d97706,color:#fef3c7
 
     style G fill:#1e293b,stroke:#60a5fa,color:#f8fafc

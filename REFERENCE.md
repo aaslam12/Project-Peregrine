@@ -706,6 +706,7 @@ No comments of any kind inside `__asm__ __volatile__` string literals. Assembler
 | **Utility Helpers** | `include/utility.h` | Complete | `is_power_of_two` for order book and SPSC validation |
 | **Benchmark Infrastructure** | `benchmarks/low_overhead_bench.h` | Complete | `rdtscp`, non-atomic histogram, TSC utilities |
 | **Build System** | `CMakeLists.txt`, `build.py` | Complete | Profile selection (dev/bench), Palloc integration, test/benchmark targets |
+| **TSC Infrastructure** | `include/tsc.h` | Complete | `tsc_init()`, `tsc_now()`, `tsc_to_ns()`, `tsc_check_cpu_flags()`; tests guarded by `PEREGRINE_PROFILING_ENABLED` so CI skips hardware-dependent cases |
 
 ### 🏗️ In Progress
 
@@ -734,9 +735,9 @@ No comments of any kind inside `__asm__ __volatile__` string literals. Assembler
 
 ## Next Immediate Steps
 
-1. **Define execution report struct:** What fields, cache-line alignment, total size?
-2. **Write Match thread entry point** and test it in isolation with pre-populated order book state
-3. **Write Decode thread** to populate execution_report fields (requires order_uid extraction, profiling timestamp `t1`)
+1. **Write `protocol.h`** — UDP packet layout struct, `msg_type` enum, seq# extraction, parse/validate helpers; test with malformed and valid packets
+2. **Define execution report struct** — finalize fields (order_uid, filled_qty, price, t0–t4), cache-line alignment, total size
+3. **Write Match thread entry point** and test in isolation with pre-populated Ring 2, no other threads running
 4. **Write Logger/Egress thread** once execution_report layout is locked
 
 ---
