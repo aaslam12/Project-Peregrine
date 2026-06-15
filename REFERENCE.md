@@ -691,5 +691,55 @@ No comments of any kind inside `__asm__ __volatile__` string literals. Assembler
 
 ---
 
+## Implementation Status
+
+### ✅ Complete
+
+| Component | Location | Status | Notes |
+|---|---|---|---|
+| **Order Book** | `include/order_book.h` | Complete | Templated on `capacity` and `Tthreaded`; all five methods implemented (insert, cancel, match, best_bid, best_ask) |
+| **Order Book Tests** | `tests/test_order_book.cpp` | Complete | 13 test cases covering insert, cancel, match, empty book, wrap-around, partial fills |
+| **Order Book Benchmarks** | `benchmarks/benchmark_order_book.cpp` | Complete | Insert (5.9ns), Cancel (3.2ns), Match (6.9ns) on non-isolated hardware |
+| **SPSC Ring** | `include/spsc_ring.h` | Complete | Power-of-two capacity, separate cache-line aligned `head`/`tail`, no CAS |
+| **SPSC Ring Tests** | `tests/test_spsc_ring.cpp` | Complete | 13 test cases covering basic ops, wrap-around, multi-threaded safety, move semantics |
+| **SPSC Ring Benchmarks** | `benchmarks/benchmark_spsc_ring.cpp` | Complete | RoundTrip (1.04ns), Throughput (10ns) on non-isolated hardware |
+| **Utility Helpers** | `include/utility.h` | Complete | `is_power_of_two` for order book and SPSC validation |
+| **Benchmark Infrastructure** | `benchmarks/low_overhead_bench.h` | Complete | `rdtscp`, non-atomic histogram, TSC utilities |
+| **Build System** | `CMakeLists.txt`, `build.py` | Complete | Profile selection (dev/bench), Palloc integration, test/benchmark targets |
+
+### 🏗️ In Progress
+
+| Component | Target Location | Status | What's Left |
+|---|---|---|---|
+| **Execution Report Struct** | `include/execution_report.h` | Design phase | Finalize fields (order_uid, filled_qty, price, t0–t4, others?) and cache-line alignment |
+| **Match Thread** | `peregrine_core.cpp` or new header | Not started | Thread entry point; reads Ring 2, executes order_book logic, constructs reports, pushes Ring 3 |
+
+### ⏳ Not Started
+
+| Component | Target Location | Why It's Blocked |
+|---|---|---|
+| **Ingest Thread** | `peregrine_core.cpp` | Waiting for network backend wrapper API finalization (AF_XDP vs syscall choice) |
+| **Decode Thread** | `peregrine_core.cpp` | Waiting for execution_report spec to know what fields to populate |
+| **Logger/Egress Thread** | `peregrine_core.cpp` | Waiting for execution_report spec and tmpfs ring layout |
+| **NACK Recv Thread** | `peregrine_core.cpp` | Depends on retransmit ring buffer API (Palloc Arena alignment requirements) |
+| **AF_XDP Backend** | `src/network/afxdp_backend.cpp` | Opt-in feature; syscall backend sufficient for correctness testing |
+| **Integration Tests** | `tests/integration/` | All thread entry points must be functional first |
+| **End-to-End Benchmarks** | `benchmarks/benchmark_full_pipeline.cpp` | Requires all five threads running together |
+
+### 🚫 Blocked By External Dependency
+
+- **Palloc per-component `Tthreaded` template parameter** — Implemented in Palloc, integrated into order_book, bitmap, pool (✅ done)
+
+---
+
+## Next Immediate Steps
+
+1. **Define execution report struct:** What fields, cache-line alignment, total size?
+2. **Write Match thread entry point** and test it in isolation with pre-populated order book state
+3. **Write Decode thread** to populate execution_report fields (requires order_uid extraction, profiling timestamp `t1`)
+4. **Write Logger/Egress thread** once execution_report layout is locked
+
+---
+
 *End of Project Peregrine Reference Document.*
 *All decisions herein supersede any prior informal discussion. When in doubt, re-read Section 14.*
